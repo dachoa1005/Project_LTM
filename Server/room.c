@@ -17,10 +17,16 @@ void init_questions_from_file() // read all question from file, store in array
 
     char line[256];
     int i = 0;
-    while (fgets(line, sizeof(line), f)) {
+    while (fgets(line, sizeof(line), f) != NULL) {
         content = malloc(256);
         answer = malloc(256);
+        // add \0 to the end of the string
+        line[sizeof(line) - 1] = '\0';
+        printf("line: %s\n", line);
         strcpy(content, strtok(line, "|"));
+        if (content == NULL|| strcmp(content, "") == 0 || strcmp(content, " ") == 0) {
+            continue;
+        }
         strcpy(answer, strtok(NULL, "|"));
 
         strcpy(all_questions[i].content, content);
@@ -84,10 +90,16 @@ void init_questions_to_room(Room *room)
     }
 
     // select the first 5 indices and store the corresponding questions in room->questions
-    for (int i = 0; i < 5; i++) {
-        int question_index = indices[i];
+    int i = 0;
+    int j = 0;
+    while (i < 5) {
+        int question_index = indices[j];
         Question selected_question = all_questions[question_index];
-        room->questions[i] = selected_question;
+        if (strcmp(selected_question.content, "") != 0) {
+            room->questions[i] = selected_question;
+            i++;
+        }
+        j++;
     }
 }
 
