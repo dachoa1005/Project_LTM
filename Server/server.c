@@ -23,9 +23,6 @@ int main(int argc, char *argv[])
     readUsersFromFile(&users, "../File/user.txt");
     printAllUsers(users);
 
-    // Init rooms
-    rooms = init_rooms();
-    print_all_rooms(rooms);
 
     // Create socket
     int server_sockfd, client_sockfd;

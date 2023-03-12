@@ -22,7 +22,7 @@ void init_questions_from_file() // read all question from file, store in array
         answer = malloc(256);
         // add \0 to the end of the string
         line[sizeof(line) - 1] = '\0';
-        printf("line: %s\n", line);
+        // printf("line: %s\n", line);
         strcpy(content, strtok(line, "|"));
         if (content == NULL|| strcmp(content, "") == 0 || strcmp(content, " ") == 0) {
             continue;
@@ -181,7 +181,12 @@ void remove_user_from_room(Room *room, User *user)
 void print_room(Room *room)
 {
     printf("Room %d - Difficulty: %d - Current number of users: %d\n", room->id, room->difficulty, room->current_number_users);
-
+    if (room->current_number_users > 0) {
+        printf("Users in room id %d: \n", room->id);
+        for (int i = 0; i < room->current_number_users; i++) {
+            printf("%s\n", room->room_users[i].username);
+        }
+    }
 }
 
 void print_all_rooms(Room *room)
@@ -191,6 +196,18 @@ void print_all_rooms(Room *room)
         print_room(current);
         current = current->next;
     }
+}
+
+Room *search_room(Room *room, int room_id)
+{
+    Room *current = room;
+    while (current != NULL) {
+        if (current->id == room_id) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
 }
 
 void send_question(Room *room, User *user);

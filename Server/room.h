@@ -42,6 +42,7 @@ void print_questions(Room *room);
 Room *init_rooms();
 Room *create_room(int difficulty);
 Room *add_room(Room **rooms, Room *new_room);
+Room *search_room(Room *rooms, int id);
 
 void add_user_to_room(Room *room, User *user);
 void remove_user_from_room(Room *room, User *user);
