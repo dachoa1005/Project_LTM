@@ -51,4 +51,4 @@ void print_room(Room *room);
 void print_all_rooms(Room *room);
 
 void send_question(Room *room, User *user);
-void send_answer(Room *room, User *user, char *answer);
+void send_result(Room *room, User *user, char *answer);

@@ -10,11 +10,12 @@
 #include "user.h"
 #include "authenticate.h"
 #include "room.h"
+#include "handler.h"
 
 extern User *users;
 extern Room *rooms;
 #define IP_ADDRESS "127.0.0.1"
-#define PORT 8888
+#define PORT 8889
 #define MAX_CLIENTS 10
 
 int main(int argc, char *argv[])
