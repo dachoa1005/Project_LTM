@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#define PORT 8889
+#define PORT 8888
 #define IP_ADDRESS "127.0.0.1"
 
 int main(int argc, char const *argv[])
@@ -17,7 +17,11 @@ int main(int argc, char const *argv[])
     // create socket
     int client_socket;
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
-
+    if (client_socket == -1)
+    {
+        printf("Socket creation failed\n");
+        exit(EXIT_FAILURE);
+    }
     // specify an address for the socket
     struct sockaddr_in server_address;
     server_address.sin_family = AF_INET;
@@ -172,7 +176,7 @@ int main(int argc, char const *argv[])
         // main screen
         if (logged_in == true)
         {
-            printf("You are logged in as %s\n__________________\n", username);
+            printf("You are logged in as %s\n_______________________\n", username);
 
             // main screen
             while (logged_in == true)
@@ -201,7 +205,7 @@ int main(int argc, char const *argv[])
                     strcat(get_room_message, username);
                     get_room_message[strlen(get_room_message)] = '\0';
                     send(client_socket, get_room_message, sizeof(get_room_message), 0);
-
+                
                     // receive response from server
                     break;
                 }
@@ -239,6 +243,8 @@ int main(int argc, char const *argv[])
                 }
             }
         }
+
     }
+    close(client_socket);
     return 0;
 }

@@ -15,7 +15,7 @@
 extern User *users;
 extern Room *rooms;
 #define IP_ADDRESS "127.0.0.1"
-#define PORT 8889
+#define PORT 8888
 #define MAX_CLIENTS 10
 
 int main(int argc, char *argv[])
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     // Init user array from file to array: (/File/user.txt)
     readUsersFromFile(&users, "../File/user.txt");
     printAllUsers(users);
-
+    init_rooms();
 
     // Create socket
     int server_sockfd, client_sockfd;

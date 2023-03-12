@@ -54,7 +54,6 @@ void *connection_handle(void *client_socket)
         if (strcmp(request_type, "LOGOUTREQ") == 0)
         {
             logout_handle(username, password, client_sockfd);
-            break;
         }
 
     } while (read_len > 0);
@@ -219,7 +218,7 @@ void logout_handle(char *username, char *password, int client_sockfd)
         if (user->socketfd == client_sockfd)
         {
             user->login_status = 0;
-            // user->socketfd = -1;
+            user->socketfd = -1;
             break;
         }
         user = user->next;
