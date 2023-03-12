@@ -1,0 +1,12 @@
+dachoa1005|dachoa1052000|1|2000
+vannam2001|nam123456|0|1200
+test|test|1|2000
+test1|test|1|2000
+tranthuong|thuong0507|1|1700
+testregis|123456|1|0
+siuuuu|dachoa1005|1|0
+testsiu|dachoa1005|1|0
+test1234|test|1|0
+test1111|test|1|0
+hoang|hoang|1|0
+hung|hung|1|0
