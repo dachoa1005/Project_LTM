@@ -14,6 +14,7 @@
 #include <sys/types.h>
 
 extern User *users;
+extern Room *rooms;
 
 char response[5];
 
@@ -51,10 +52,19 @@ void *connection_handle(void *client_socket)
             register_handle(username, password, client_sockfd);
         }
 
+        // logout
         if (strcmp(request_type, "LOGOUTREQ") == 0)
         {
             logout_handle(username, password, client_sockfd);
         }
+
+        // handle GETROOMREQ|username
+        if (strcmp(request_type, "GETROOMREQ") == 0)
+        {
+            // send all room id + difficulty + current numbers of players in each room to client
+            get_room_handle(username, client_sockfd);
+        }
+
 
     } while (read_len > 0);
 
@@ -235,4 +245,34 @@ void logout_handle(char *username, char *password, int client_sockfd)
         user = user->next;
     }
     printf("\n");
+}
+
+void get_room_handle(char *username, int client_sockfd)
+{
+    char room_handle_response[100];
+    // send all room id + difficulty + current numbers of players in each room to client
+    Room *current = rooms;
+    while (current != NULL)
+    {
+        memset(room_handle_response, 0, sizeof(room_handle_response));
+        // send format: ROOM|room_id|difficulty|current_numbers_of_players
+        strcpy(room_handle_response, "ROOM|");
+        char room_id[10];
+        sprintf(room_id, "%d", current->id);
+        strcat(room_handle_response, room_id);
+        strcat(room_handle_response, "|");
+        char difficul[10];
+        sprintf(difficul, "%d", current->difficulty);
+        strcat(room_handle_response, difficul);
+        strcat(room_handle_response, "|");
+        char num[10];
+        sprintf(num, "%d", current->current_number_users);
+        strcat(room_handle_response, num);
+        printf("room_handle_response: %s\n", room_handle_response);
+        send(client_sockfd, room_handle_response, sizeof(room_handle_response), 0);
+        current = current->next;
+    }
+    // send END to client
+    strcpy(room_handle_response, "END");
+    send(client_sockfd, room_handle_response, sizeof(room_handle_response), 0);
 }

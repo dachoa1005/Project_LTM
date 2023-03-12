@@ -39,8 +39,8 @@ int main(int argc, char const *argv[])
     // int login_attemps = 0;
     char response[1024];
     int option = 0;
-    bool logged_in = false;  // 0: not login or login fail, 1: login success
-    int exit_login = 0; // 0: not exit, 1: exit
+    bool logged_in = false; // 0: not login or login fail, 1: login success
+    int exit_login = 0;     // 0: not exit, 1: exit
     char username[100];
     char password[100];
     char email[100];
@@ -185,12 +185,12 @@ int main(int argc, char const *argv[])
                 printf("Select an option: \n1. Play game\n2. View ranking\n3. Change password\n4. Logout\n");
                 printf("Enter your choice: ");
                 fgets(input, 100, stdin);
+                input[strlen(input) - 1] = '\0';
                 choice = strtol(input, NULL, 10);
                 switch (choice)
                 {
                 case 1: // play game
                 {
-                    printf("Play game\n");
                     // print all available room to client or create new room
                     // client choose to join a room or create a new room
                     // if join a room, client will be waiting for another player to join
@@ -200,13 +200,32 @@ int main(int argc, char const *argv[])
                     // if client choose to wait, client will be waiting for another player to join
                     // if client choose to exit, client will be back to main screen
                     // send request to server to get all available room
+                    printf("Play game\n");
                     char get_room_message[200];
-                    strcpy(get_room_message, "GETROOMREQ|");
-                    strcat(get_room_message, username);
-                    get_room_message[strlen(get_room_message)] = '\0';
+                    sprintf(get_room_message, "GETROOMREQ|%s", username);
                     send(client_socket, get_room_message, sizeof(get_room_message), 0);
-                
+
                     // receive response from server
+                    memset(response, 0, sizeof(response));
+                    printf("Available rooms:\n");
+                    printf("Room ID\tDifficulty\tCurrent number of players\n");
+                    // response format: ROOM|room_id|difficulty|current_number_of_players or END
+                    while (1)
+                    {
+                        recv(client_socket, response, sizeof(response), 0);
+                        response[strlen(response)] = '\0';
+                        if (strcmp(response, "END") == 0)
+                        {
+                            break;
+                        }
+                        char *token = strtok(response, "|");
+                        token = strtok(NULL, "|");
+                        printf("%s\t", token);
+                        token = strtok(NULL, "|");
+                        printf("%s\t\t", token);
+                        token = strtok(NULL, "|");
+                        printf("%s\n", token);
+                    }
                     break;
                 }
                 case 2: // view ranking
@@ -243,7 +262,6 @@ int main(int argc, char const *argv[])
                 }
             }
         }
-
     }
     close(client_socket);
     return 0;
