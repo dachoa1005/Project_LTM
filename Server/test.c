@@ -9,18 +9,13 @@ int main() {
     readUsersFromFile(&users, "../File/user.txt");
     printAllUsers(users);
     
-    rooms = init_rooms();
-    assert(rooms->id == 1);
-    assert(rooms->difficulty == 1);
-    assert(rooms->max_users == 2);
-    assert(rooms->current_number_users == 0);
-    assert(rooms->state == READY);
-    assert(rooms->questions != NULL);
-    assert(rooms->num_questions == 5);
-    assert(rooms->current_question == 0);
-    assert(rooms->next == NULL);
-    
+    init_rooms();
+    Room *room1 = create_room(1);
 
+    print_all_rooms(rooms);
+    assert(rooms->next != NULL);
 
+    print_questions(room1);
+    // assert(room1 != NULL);
     return 0;
 }

@@ -1,25 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <time.h>
 
-char *trim_space(char *str)
-{
-    char *dst = str;
-    while (*str)
-    {
-        if (!isspace((unsigned char)*str))
-            *dst++ = *str;
-        str++;
+int main() {
+    // Lấy thời gian hiện tại
+    time_t t;
+    time(&t);
+
+    // Sử dụng giá trị thời gian làm seed cho hàm srand
+    srand((unsigned int) t);
+
+    // Tạo các số ngẫu nhiên
+    int i;
+    for (i = 0; i < 10; i++) {
+        printf("%d\n", rand());
     }
-    *dst = '\0';
-    strcpy(str, dst);
-    return str;
-}
 
-int main(int argc, char const *argv[])
-{
-    char str[] = "    asd  aa";
-    printf("%s\n", trim_space(str));
     return 0;
 }

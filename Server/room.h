@@ -22,7 +22,7 @@ typedef struct question {
     char answer[256];
 } Question;
 
-typedef struct Room {
+typedef struct room {
     int id;
     int difficulty;
     int max_users;
@@ -32,7 +32,7 @@ typedef struct Room {
     Question *questions;
     int num_questions;
     int current_question;
-    struct Room *next;    
+    struct room *next;    
 } Room;
 
 void init_questions_from_file(); // read all question from file, store in array
