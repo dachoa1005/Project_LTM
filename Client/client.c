@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#define PORT 8888
+#define PORT 8889
 #define IP_ADDRESS "127.0.0.1"
 
 int main(int argc, char const *argv[])
@@ -46,6 +46,7 @@ int main(int argc, char const *argv[])
     char email[100];
     int choice = 0;
     char input[100];
+    int joined_room = 0; // 0: not join any room, 1: join a room
     while (1)
     {
         // login screen
@@ -201,9 +202,9 @@ int main(int argc, char const *argv[])
                     // if client choose to exit, client will be back to main screen
                     // send request to server to get all available room
                     printf("Play game\n");
-                    char get_room_message[200];
+                    char get_room_message[250];
                     sprintf(get_room_message, "GETROOMREQ|%s", username);
-                    send(client_socket, get_room_message, sizeof(get_room_message), 0);
+                    send(client_socket, get_room_message, strlen(get_room_message), 0);
 
                     // receive response from server
                     memset(response, 0, sizeof(response));
@@ -212,6 +213,7 @@ int main(int argc, char const *argv[])
                     // response format: ROOM|room_id|difficulty|current_number_of_players or END
                     while (1)
                     {
+                        memset(response, 0, sizeof(response));
                         recv(client_socket, response, sizeof(response), 0);
                         response[strlen(response)] = '\0';
                         if (strcmp(response, "END") == 0)
@@ -226,6 +228,126 @@ int main(int argc, char const *argv[])
                         token = strtok(NULL, "|");
                         printf("%s\n", token);
                     }
+                    while (1)
+                    {
+                        printf("Enter room ID to join, enter 0 to create a new room, enter -1 to exit: ");
+                        fgets(input, 100, stdin);
+                        input[strlen(input) - 1] = '\0';
+                        choice = strtol(input, NULL, 10);
+
+                        if (choice == 0) // create new room
+                        {
+                            // TO DO
+                        }
+                        else if (choice > 0) // join room
+                        {
+                            // send request to server to join room
+                            char join_room_message[250];
+                            sprintf(join_room_message, "JOINROOMREQ|%s|%d", username, choice);
+                            send(client_socket, join_room_message, sizeof(join_room_message), 0);
+
+                            // receive response from server
+                            memset(response, 0, sizeof(response));
+                            recv(client_socket, response, sizeof(response), 0);
+                            response[strlen(response)] = '\0';
+
+                            // response = "NOEX" - room not exist, "FULL" - room is full, "SUCC" - join success
+                            if (strcmp(response, "NOEX") == 0)
+                            {
+                                printf("Room not exist, please enter again\n");
+                                continue;
+                            }
+                            if (strcmp(response, "FULL") == 0)
+                            {
+                                printf("Room is full, please enter again\n");
+                                continue;
+                            }
+                            if (strcmp(response, "SUCC") == 0)
+                            {
+                                printf("Join room success, waiting for another player to join\n");
+                                joined_room = 1;
+                                break;
+                            }
+                        }
+                        else if (choice == -1)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            printf("Invalid option, please enter again\n");
+                            continue;
+                        }
+                    }
+                    if (joined_room == 1)
+                    {
+                        // wait for another player to join
+                        // if another player join, game will start -> wait for STARTGAME message from server
+                        // receive response from server
+                        memset(response, 0, sizeof(response));
+                        recv(client_socket, response, sizeof(response), 0);
+                        response[strlen(response)] = '\0';
+
+                        // response = "STAR" - game start
+                        if (strcmp(response, "STAR") == 0) 
+                        {
+                            int point = 0;
+                            printf("Game start\n");
+                            // receive question from server
+                            // question format: QUES|question_content|question_answer|question_content|question_answer|...
+                            memset(response, 0, sizeof(response));
+                            recv(client_socket, response, sizeof(response), 0);
+                            response[strlen(response)] = '\0';
+                            // split response to get question content and answer
+                            char *token = strtok(response, "|"); // QUES
+                            while (token != NULL)
+                            {
+                                token = strtok(NULL, "|"); // question content
+                                printf("Enter the correct answer to 5 questions below:\n");
+                                printf("%s\n", token);
+                                token = strtok(NULL, "|"); // question answer
+                                printf("Enter your answer: ");
+                                fgets(input, 100, stdin);
+                                input[strlen(input) - 1] = '\0';
+                                if (strcmp(input, token) == 0)
+                                {
+                                    printf("Correct answer!\n");
+                                    point++;
+                                } else {
+                                    printf("Wrong answer!\n");
+                                }
+                            }
+                            printf("Your point: %d.\n Waiting for another player to finish and see the result\n", point);
+                            // send point to server
+                            char send_point_message[20];
+                            sprintf(send_point_message, "PONT|%d", point);
+                            send(client_socket, send_point_message, sizeof(send_point_message), 0);
+
+                            // receive response from server
+                            // 
+                            memset(response, 0, sizeof(response));
+                            recv(client_socket, response, sizeof(response), 0);
+                            response[strlen(response)] = '\0';
+                            // respone = WINN or LOSE or DRAW
+                            if (strcmp(response, "WINN") == 0)
+                            {
+                                printf("You win!\n");
+                            }
+                            if (strcmp(response, "LOSE") == 0)
+                            {
+                                printf("You lose!\n");
+                            }
+                            if (strcmp(response, "DRAW") == 0)
+                            {
+                                printf("Draw!\n");
+                            }
+
+                            // back to room list
+                            joined_room = 0;
+
+                        }
+                    }
+
                     break;
                 }
                 case 2: // view ranking
@@ -241,13 +363,9 @@ int main(int argc, char const *argv[])
                 case 4: // logout
                 {
                     // send logout request to server
-                    char logout_message[200];
-                    strcpy(logout_message, "LOGOUTREQ|");
-                    strcat(logout_message, username);
-                    strcat(logout_message, "|");
-                    strcat(logout_message, password);
-                    logout_message[strlen(logout_message)] = '\0';
-                    send(client_socket, logout_message, sizeof(logout_message), 0);
+                    char logout_message[250];
+                    sprintf(logout_message, "LOGOUTREQ|%s|%s", username, password);
+                    send(client_socket, logout_message, strlen(logout_message), 0);
                     logged_in = false;
                     exit_login = 0;
                     printf("Logout success\n");
@@ -262,7 +380,7 @@ int main(int argc, char const *argv[])
                 }
             }
         }
+        close(client_socket);
+        return 0;
     }
-    close(client_socket);
-    return 0;
 }

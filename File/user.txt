@@ -1,6 +1,6 @@
-dachoa1005|dachoa1052000|1|2000
+dachoa1005|dachoa1052000|1|2060
 vannam2001|nam123456|0|1200
-test|test|1|2000
+test|test|1|2060
 test1|test|1|2000
 tranthuong|thuong0507|1|1700
 testregis|123456|1|0

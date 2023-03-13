@@ -1,5 +1,12 @@
 #include "room.h"
 #include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/socket.h>
 
 Room *rooms = NULL;
 Question all_questions[10];
@@ -212,3 +219,12 @@ Room *search_room(Room *room, int room_id)
 
 void send_question(Room *room, User *user);
 void send_result(Room *room, User *user, char *answer);
+
+void send_to_all(Room *room, char *message)
+{
+    for (int i = 0; i < room->current_number_users; i++) 
+    {
+        User *user = &room->room_users[i];
+        send(user->socketfd, message, strlen(message), 0);
+    }
+}

@@ -29,7 +29,7 @@ typedef struct room {
     int current_number_users; // number of users currently in the room
     User *room_users; // array of users in the room
     State state;
-    Question *questions;
+    Question *questions; // array of questions
     int num_questions;
     int current_question;
     struct room *next;    
@@ -52,3 +52,4 @@ void print_all_rooms(Room *room);
 
 void send_question(Room *room, User *user);
 void send_result(Room *room, User *user, char *answer);
+void send_to_all(Room *room, char *message);
