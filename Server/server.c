@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
     printAllUsers(users);
     init_rooms();
     create_room(1);
+    create_room(2);
+    create_room(2);
 
     // Create socket
     int server_sockfd, client_sockfd;

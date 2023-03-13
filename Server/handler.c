@@ -260,11 +260,11 @@ void get_room_handle(char *username, int client_sockfd)
     char room_handle_response[100];
     // send all room id + difficulty + current numbers of players in each room to client
     Room *current = rooms;
+    memset(room_handle_response, 0, sizeof(room_handle_response));
+    strcpy(room_handle_response, "ROOM|");
     while (current != NULL)
     {
-        memset(room_handle_response, 0, sizeof(room_handle_response));
-        // send format: ROOM|room_id|difficulty|current_numbers_of_players
-        strcpy(room_handle_response, "ROOM|");
+        // send format: ROOM|room_id|difficulty|current_numbers_of_players|room_id|difficulty|current_numbers_of_players|...
         char room_id[10];
         if (current->id == 0)
         {
@@ -274,22 +274,26 @@ void get_room_handle(char *username, int client_sockfd)
         sprintf(room_id, "%d", current->id);
         strcat(room_handle_response, room_id);
         strcat(room_handle_response, "|");
+
         char difficul[10];
         sprintf(difficul, "%d", current->difficulty);
         strcat(room_handle_response, difficul);
         strcat(room_handle_response, "|");
+        
         char num[10];
         sprintf(num, "%d", current->current_number_users);
         strcat(room_handle_response, num);
-        room_handle_response[strlen(room_handle_response)] = '\0';
-        printf("room_handle_response: %s\n", room_handle_response);
-        send(client_sockfd, room_handle_response, sizeof(room_handle_response), 0);
+        strcat(room_handle_response, "|");
+        
         current = current->next;
     }
-    // send END to client
-    strcpy(room_handle_response, "END");
     printf("room_handle_response: %s\n", room_handle_response);
+    room_handle_response[strlen(room_handle_response)] = '\0';
     send(client_sockfd, room_handle_response, sizeof(room_handle_response), 0);
+    // send END to client
+    // strcpy(room_handle_response, "END");
+    // printf("room_handle_response: %s\n", room_handle_response);
+    // send(client_sockfd, room_handle_response, sizeof(room_handle_response), 0);
 }
 
 void join_room_handle(char *username, int room_id, int socketfd)
@@ -314,7 +318,15 @@ void join_room_handle(char *username, int room_id, int socketfd)
         else
         {
             // add user to room
-            User *user = searchUser(users, username);
+            User *user = users;
+            while (user != NULL)
+            {
+                if (user->socketfd == socketfd)
+                {
+                    break;
+                }
+                user = user->next;
+            }
             user->current_room_id = room_id;
             // room->current_number_users++;
             add_user_to_room(room, user);
@@ -334,7 +346,7 @@ void join_room_handle(char *username, int room_id, int socketfd)
 
                 send(room->room_users[0].socketfd, response, sizeof(response), 0);
                 send(room->room_users[1].socketfd, response, sizeof(response), 0);
-
+                printf("%d %d\n", room->room_users[0].socketfd, room->room_users[1].socketfd);
                 // send question to both users in room
                 // question format: QUES|question1|questioncontent|question_answer|question2|questioncontent|question_answer|...
                 char question[1000];
@@ -357,15 +369,21 @@ void join_room_handle(char *username, int room_id, int socketfd)
                 // recive users's point from both users in room
                 // point format: PONT|point
                 int point0, point1; // point of room->room_users[0] and room->room_users[1]
-                char point[100];
+                char point[20];
+
                 memset(point, 0, sizeof(point));
                 recv(room->room_users[0].socketfd, point, sizeof(point), 0);
+                strtok(point, "|");
                 printf("User 1: %s point: %s\n", room->room_users[0].username, point);
                 point0 = atoi(point);
+                printf("point0: %d\n", point0);
+
                 memset(point, 0, sizeof(point));
                 recv(room->room_users[1].socketfd, point, sizeof(point), 0);
+                strtok(point, "|");
                 printf("User 2: %s point: %s\n", room->room_users[1].username, point);
                 point1 = atoi(point);
+                printf("point1: %d\n", point1);
 
                 if (point0 > point1)
                 {

@@ -35,9 +35,11 @@ void init_questions_from_file() // read all question from file, store in array
             continue;
         }
         strcpy(answer, strtok(NULL, "|"));
+        answer[strlen(answer) - 1] = '\0';
 
         strcpy(all_questions[i].content, content);
         strcpy(all_questions[i].answer, answer);
+        // printf("content: %s, answer: %s", all_questions[i].content, all_questions[i].answer);
         all_questions[i].id = i;
         i++;
     }
@@ -170,7 +172,7 @@ void add_user_to_room(Room *room, User *user)
 {
     if (room->current_number_users < room->max_users) {
         room->room_users[room->current_number_users] = *user;
-        room->current_number_users++;
+        room->current_number_users+=1;
     }
 }
 
